@@ -7,13 +7,24 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Serve audio files from attached_assets directory
-app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets'), {
-  setHeaders: (res) => {
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Content-Type', 'audio/mpeg');
-  }
-}));
+// Enhanced audio file serving with better error handling
+app.use('/attached_assets', (req, res, next) => {
+  const filePath = path.join(process.cwd(), 'attached_assets', decodeURIComponent(path.basename(req.url)));
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Content-Type', 'audio/mpeg');
+
+  // Log audio file requests
+  console.log(`Serving audio file: ${filePath}`);
+
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      console.error(`Error serving audio file ${filePath}:`, err);
+      res.status(404).send('Audio file not found');
+    } else {
+      console.log(`Successfully served audio file: ${filePath}`);
+    }
+  });
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -56,17 +67,12 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client
   const PORT = 5000;
   server.listen(PORT, "0.0.0.0", () => {
     log(`serving on port ${PORT}`);

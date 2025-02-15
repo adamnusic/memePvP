@@ -29,6 +29,9 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
         audio.src = songUrl;
         audio.volume = 1.0;
 
+        console.log('Created audio element with URL:', songUrl);
+        onDebugUpdate('Loading audio file...');
+
         // Create analyzer if it doesn't exist
         if (!analyzerRef.current) {
           console.log('Creating new AudioAnalyzer');
@@ -42,8 +45,9 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
         });
 
         audio.addEventListener('error', (e) => {
-          console.error('Audio loading error:', e);
-          onDebugUpdate('Error loading audio');
+          const error = e.currentTarget as HTMLAudioElement;
+          console.error('Audio loading error:', error.error);
+          onDebugUpdate(`Error loading audio: ${error.error?.message || 'Unknown error'}`);
         });
 
         audio.addEventListener('canplaythrough', async () => {
@@ -62,7 +66,7 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
             }
           } catch (error) {
             console.error('Error starting audio playback:', error);
-            onDebugUpdate('Error starting playback');
+            onDebugUpdate(`Error starting playback: ${error}`);
           }
         });
 
@@ -70,7 +74,7 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
 
       } catch (error) {
         console.error('Error in audio initialization:', error);
-        onDebugUpdate('Audio initialization failed');
+        onDebugUpdate(`Audio initialization failed: ${error}`);
       }
     };
 
