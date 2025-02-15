@@ -1,0 +1,36 @@
+import { useState } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { Song } from '@/lib/songs';
+import Environment from './Environment';
+import GameController from './GameController';
+
+type GameSceneProps = {
+  song: Song;
+};
+
+export default function GameScene({ song }: GameSceneProps) {
+  const [score, setScore] = useState(0);
+
+  const handleScore = (points: number) => {
+    setScore(prev => prev + points);
+  };
+
+  return (
+    <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
+      <div className="absolute top-4 left-4 text-white text-2xl font-bold z-10 bg-black/50 p-2 rounded">
+        Score: {score}
+      </div>
+
+      <Canvas
+        camera={{ position: [0, 2, 8], fov: 75 }}
+        gl={{ antialias: true }}
+      >
+        <Environment />
+        <GameController 
+          songUrl={song.url} 
+          onScore={handleScore}
+        />
+      </Canvas>
+    </div>
+  );
+}

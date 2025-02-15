@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Group } from 'three';
-import { useFrame } from '@react-three/fiber';
-import { Interactive, useXR } from '@react-three/xr';
+import { useFrame, useThree } from '@react-three/fiber';
 import CoinTarget from './CoinTarget';
 import { AudioAnalyzer } from './AudioAnalyzer';
 
@@ -15,7 +14,7 @@ export default function GameController({ songUrl, onScore }: GameControllerProps
   const [coins, setCoins] = useState<{ id: number; position: [number, number, number] }[]>([]);
   const audioRef = useRef<HTMLAudioElement>(null);
   const analyzerRef = useRef<AudioAnalyzer>();
-  const { isPresenting } = useXR();
+  const { camera } = useThree();
 
   useEffect(() => {
     if (!analyzerRef.current) {
@@ -24,9 +23,11 @@ export default function GameController({ songUrl, onScore }: GameControllerProps
 
     const audio = new Audio(songUrl);
     audioRef.current = audio;
+    audio.play();
 
     if (audioRef.current) {
       analyzerRef.current.connect(audioRef.current);
+      analyzerRef.current.resume();
     }
 
     return () => {
@@ -40,21 +41,14 @@ export default function GameController({ songUrl, onScore }: GameControllerProps
       const newCoin = {
         id: Date.now(),
         position: [
-          Math.random() * 4 - 2, // x: -2 to 2
-          Math.random() * 2 + 1, // y: 1 to 3
-          -20 // z: start far back
+          Math.random() * 10 - 5, // x: -5 to 5
+          Math.random() * 3 + 1,  // y: 1 to 4
+          -15 // z: start far back
         ] as [number, number, number]
       };
       setCoins(prev => [...prev, newCoin]);
     }
   });
-
-  useEffect(() => {
-    if (isPresenting && audioRef.current) {
-      audioRef.current.play();
-      analyzerRef.current?.resume();
-    }
-  }, [isPresenting]);
 
   const handleCoinHit = (coinId: number) => {
     setCoins(prev => prev.filter(coin => coin.id !== coinId));
@@ -64,12 +58,11 @@ export default function GameController({ songUrl, onScore }: GameControllerProps
   return (
     <group ref={groupRef}>
       {coins.map(coin => (
-        <Interactive key={coin.id} onSelect={() => handleCoinHit(coin.id)}>
-          <CoinTarget
-            position={coin.position}
-            onHit={() => handleCoinHit(coin.id)}
-          />
-        </Interactive>
+        <CoinTarget
+          key={coin.id}
+          position={coin.position}
+          onHit={() => handleCoinHit(coin.id)}
+        />
       ))}
     </group>
   );

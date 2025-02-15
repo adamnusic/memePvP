@@ -22,7 +22,14 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
   });
 
   return (
-    <mesh ref={meshRef} position={position}>
+    <mesh 
+      ref={meshRef} 
+      position={position}
+      onClick={(e) => {
+        e.stopPropagation();
+        onHit();
+      }}
+    >
       <cylinderGeometry args={[1, 1, 0.1, 32]} />
       <meshStandardMaterial color="#FFD700" metalness={0.8} roughness={0.2} />
     </mesh>
