@@ -10,7 +10,8 @@ export default function DancingCharacter() {
 
   // Load the FBX model and its animations
   const fbx = useLoader(FBXLoader, '/attached_assets/Wave Hip Hop Dance.fbx');
-  const texture = useLoader(TextureLoader, '/attached_assets/on1 7173_a.png');
+  const characterTexture = useLoader(TextureLoader, '/attached_assets/on1 7173_a.png');
+  const floorTexture = useLoader(TextureLoader, '/attached_assets/4483_a.png');
 
   useEffect(() => {
     if (fbx && fbx.animations.length) {
@@ -23,11 +24,11 @@ export default function DancingCharacter() {
         if (child instanceof THREE.Mesh) {
           if (Array.isArray(child.material)) {
             child.material.forEach(mat => {
-              mat.map = texture;
+              mat.map = characterTexture;
               mat.needsUpdate = true;
             });
           } else {
-            child.material.map = texture;
+            child.material.map = characterTexture;
             child.material.needsUpdate = true;
           }
         }
@@ -42,7 +43,7 @@ export default function DancingCharacter() {
         mixer.stopAllAction();
       };
     }
-  }, [fbx, texture]);
+  }, [fbx, characterTexture]);
 
   useEffect(() => {
     // Scale and position adjustments
@@ -60,8 +61,27 @@ export default function DancingCharacter() {
     }
   });
 
+  // Configure floor texture
+  if (floorTexture) {
+    floorTexture.wrapS = THREE.RepeatWrapping;
+    floorTexture.wrapT = THREE.RepeatWrapping;
+    floorTexture.repeat.set(4, 4); // Repeat the texture
+  }
+
   return (
     <group ref={groupRef}>
+      {/* Dance Floor */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
+        <planeGeometry args={[20, 20]} />
+        <meshStandardMaterial 
+          map={floorTexture}
+          side={THREE.DoubleSide}
+          roughness={0.8}
+          metalness={0.2}
+        />
+      </mesh>
+
+      {/* Character Model */}
       <primitive object={fbx} />
     </group>
   );
