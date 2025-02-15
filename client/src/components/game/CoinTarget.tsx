@@ -39,6 +39,8 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
       meshRef.current.position.z += 0.1;
 
       if (meshRef.current.position.z > 5) {
+        // Reset combo when coin is missed
+        soundStore.resetCombo();
         onHit();
       }
     }
