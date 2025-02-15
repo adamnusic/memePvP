@@ -32,8 +32,10 @@ export default function VideoBackground() {
         playsInline
         style={{
           width: '100%',
-          height: '100%',
-          objectFit: 'cover',
+          height: 'auto', 
+          objectFit: 'fill', 
+          objectPosition: 'center top', 
+          minWidth: '100%', 
         }}
       >
         <source src="/attached_assets/F4LL3N.mp4" type="video/mp4" />
