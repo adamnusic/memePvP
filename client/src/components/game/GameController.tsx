@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Group, Box3, Vector3 } from 'three';
+import { Group } from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import CoinTarget from './CoinTarget';
 import { AudioAnalyzer } from './AudioAnalyzer';
@@ -20,9 +20,8 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
   const lastSpawnTime = useRef(0);
   const { camera } = useThree();
 
-  const MAX_COINS = 5;
-  const SPAWN_COOLDOWN = 1000;
-  const PENALTY_POINTS = -50;
+  const MAX_COINS = 5; // Maximum number of coins allowed at once
+  const SPAWN_COOLDOWN = 1000; // Minimum time between spawns in milliseconds
 
   useEffect(() => {
     console.log('Starting audio initialization...');
@@ -104,41 +103,33 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
       const newCoin = {
         id: Date.now(),
         position: [
-          Math.random() * 6 - 3,
-          Math.random() * 2 + 1,
-          -10
+          Math.random() * 6 - 3, // x: -3 to 3 (reduced range)
+          Math.random() * 2 + 1,  // y: 1 to 3 (reduced range)
+          -10 // z: start closer
         ] as [number, number, number]
       };
       setCoins(prev => [...prev, newCoin]);
       lastSpawnTime.current = currentTime;
     }
 
-    // Check for coin-character collisions
-    if (groupRef.current) {
-      const characterGroup = groupRef.current.children.find(child => child instanceof Group);
-      if (characterGroup) {
-        const characterBox = new Box3().setFromObject(characterGroup);
-
-        setCoins(prev => prev.filter(coin => {
-          const coinMesh = groupRef.current?.getObjectById(coin.id);
-          if (coinMesh) {
-            const coinBox = new Box3().setFromObject(coinMesh);
-            if (coinBox.intersectsBox(characterBox)) {
-              // Coin hit the character
-              onScore(PENALTY_POINTS);
-              return false;
-            }
-            return coinMesh.position.z <= 5;
-          }
-          return true;
-        }));
-      }
-    }
+    // Clean up coins that are too far away and reset combo
+    setCoins(prev => {
+      const newCoins = prev.filter(coin => {
+        const mesh = groupRef.current?.getObjectById(coin.id);
+        const keepCoin = mesh ? mesh.position.z <= 5 : true;
+        if (!keepCoin) {
+          // Reset combo when a coin is missed
+          useSoundStore.getState().resetCombo();
+        }
+        return keepCoin;
+      });
+      return newCoins;
+    });
   });
 
   return (
     <group ref={groupRef}>
-      <DancingCharacter onHit={() => onScore(PENALTY_POINTS)} />
+      <DancingCharacter />
       {coins.map(coin => (
         <CoinTarget
           key={coin.id}
