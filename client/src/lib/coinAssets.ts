@@ -1,4 +1,4 @@
-import { TextureLoader } from 'three';
+import { TextureLoader, Texture } from 'three';
 
 // Array of all available coin images
 export const COIN_IMAGES = [
@@ -16,10 +16,51 @@ export const COIN_IMAGES = [
 ];
 
 // Create a singleton texture loader
-export const textureLoader = new TextureLoader();
+const textureLoader = new TextureLoader();
 
-// Function to get a random coin image URL
-export const getRandomCoinImage = () => {
-  const randomIndex = Math.floor(Math.random() * COIN_IMAGES.length);
-  return COIN_IMAGES[randomIndex];
+// Cache for loaded textures
+const textureCache = new Map<string, Texture>();
+
+// Pre-load all textures
+export const preloadTextures = () => {
+  COIN_IMAGES.forEach(imageUrl => {
+    if (!textureCache.has(imageUrl)) {
+      textureLoader.load(
+        imageUrl,
+        (texture) => {
+          texture.flipY = false;
+          textureCache.set(imageUrl, texture);
+          console.log(`Texture loaded: ${imageUrl}`);
+        },
+        undefined,
+        (error) => console.error(`Error loading texture ${imageUrl}:`, error)
+      );
+    }
+  });
 };
+
+// Get a random texture from the cache, or load if not cached
+export const getRandomCoinTexture = (): Promise<Texture> => {
+  const randomIndex = Math.floor(Math.random() * COIN_IMAGES.length);
+  const imageUrl = COIN_IMAGES[randomIndex];
+
+  return new Promise((resolve, reject) => {
+    if (textureCache.has(imageUrl)) {
+      resolve(textureCache.get(imageUrl)!);
+    } else {
+      textureLoader.load(
+        imageUrl,
+        (texture) => {
+          texture.flipY = false;
+          textureCache.set(imageUrl, texture);
+          resolve(texture);
+        },
+        undefined,
+        reject
+      );
+    }
+  });
+};
+
+// Initialize preloading
+preloadTextures();

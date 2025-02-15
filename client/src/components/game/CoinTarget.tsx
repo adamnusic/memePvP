@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { Mesh, Texture } from 'three';
 import { useFrame } from '@react-three/fiber';
-import { textureLoader, getRandomCoinImage } from '@/lib/coinAssets';
+import { getRandomCoinTexture } from '@/lib/coinAssets';
 
 type CoinTargetProps = {
   position: [number, number, number];
@@ -13,13 +13,22 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
   const [texture, setTexture] = useState<Texture | null>(null);
 
   useEffect(() => {
-    // Load a random coin texture when component mounts
-    const coinImageUrl = getRandomCoinImage();
-    textureLoader.load(coinImageUrl, (loadedTexture) => {
-      // Adjust texture properties for better visibility
-      loadedTexture.flipY = false;
-      setTexture(loadedTexture);
-    });
+    let isMounted = true;
+
+    // Load texture when component mounts
+    getRandomCoinTexture()
+      .then((loadedTexture) => {
+        if (isMounted) {
+          setTexture(loadedTexture);
+        }
+      })
+      .catch((error) => {
+        console.error('Error loading texture:', error);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useFrame(() => {
