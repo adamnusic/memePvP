@@ -3,7 +3,7 @@ export class AudioAnalyzer {
   private analyser: AnalyserNode;
   private dataArray: Uint8Array;
   private source?: MediaElementAudioSourceNode;
-  private beatThreshold: number = 1; // Lower threshold to ensure we get some beats
+  private beatThreshold: number = 1; // Very low threshold to ensure beats are detected
   private lastBeatTime: number = 0;
   private beatCooldown: number = 300; // Shorter cooldown for more frequent beats
 

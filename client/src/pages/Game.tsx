@@ -7,14 +7,22 @@ import { Button } from "@/components/ui/button";
 export default function Game() {
   const { songId } = useParams();
   const [isPlaying, setIsPlaying] = useState(false);
+  const [debug, setDebug] = useState<string>('Waiting to start...');
   const song = songs.find(s => s.id === songId);
 
-  const handleStartGame = () => {
-    // Initialize audio context on user interaction
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-    const audioContext = new AudioContext();
-    audioContext.resume().catch(console.error);
-    setIsPlaying(true);
+  const handleStartGame = async () => {
+    try {
+      setDebug('Initializing audio context...');
+      // Initialize audio context on user interaction
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      const audioContext = new AudioContext();
+      await audioContext.resume();
+      setDebug('Audio context initialized successfully');
+      setIsPlaying(true);
+    } catch (error) {
+      setDebug(`Error initializing audio: ${error}`);
+      console.error('Error initializing audio:', error);
+    }
   };
 
   if (!song) {
@@ -36,10 +44,11 @@ export default function Game() {
           <p className="mb-8">Use your mouse to click the coins and score points!</p>
           <Button 
             onClick={handleStartGame}
-            className="bg-gradient-to-r from-yellow-400 to-orange-600 hover:opacity-90"
+            className="bg-gradient-to-r from-yellow-400 to-orange-600 hover:opacity-90 mb-4"
           >
             Start Game
           </Button>
+          <p className="text-sm text-gray-300">{debug}</p>
         </div>
       </div>
     );
