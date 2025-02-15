@@ -3,6 +3,7 @@ import { Group } from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import CoinTarget from './CoinTarget';
 import { AudioAnalyzer } from './AudioAnalyzer';
+import { useSoundStore } from './SoundManager';
 
 type GameControllerProps = {
   songUrl: string;
@@ -94,9 +95,9 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
     const currentTime = Date.now();
 
     // Only spawn if we're under the max limit and enough time has passed
-    if (analyzerRef.current?.getBeatDetection() && 
-        coins.length < MAX_COINS && 
-        currentTime - lastSpawnTime.current > SPAWN_COOLDOWN) {
+    if (analyzerRef.current?.getBeatDetection() &&
+      coins.length < MAX_COINS &&
+      currentTime - lastSpawnTime.current > SPAWN_COOLDOWN) {
       console.log('Beat detected - spawning coin!');
       const newCoin = {
         id: Date.now(),
@@ -110,11 +111,19 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
       lastSpawnTime.current = currentTime;
     }
 
-    // Clean up coins that are too far away
-    setCoins(prev => prev.filter(coin => {
-      const mesh = groupRef.current?.getObjectById(coin.id);
-      return mesh ? mesh.position.z <= 5 : true;
-    }));
+    // Clean up coins that are too far away and reset combo
+    setCoins(prev => {
+      const newCoins = prev.filter(coin => {
+        const mesh = groupRef.current?.getObjectById(coin.id);
+        const keepCoin = mesh ? mesh.position.z <= 5 : true;
+        if (!keepCoin) {
+          // Reset combo when a coin is missed
+          useSoundStore.getState().resetCombo();
+        }
+        return keepCoin;
+      });
+      return newCoins;
+    });
   });
 
   return (

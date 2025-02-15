@@ -3,6 +3,7 @@ import { Mesh, Texture } from 'three';
 import { useFrame } from '@react-three/fiber';
 import { getRandomCoinTexture } from '@/lib/coinAssets';
 import SlicedCoin from './SlicedCoin';
+import { useSoundStore, playHitSound } from './SoundManager';
 
 type CoinTargetProps = {
   position: [number, number, number];
@@ -49,6 +50,12 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
   const handleHit = (e: any) => {
     e.stopPropagation();
     setIsSliced(true);
+
+    // Increment combo and play appropriate sound
+    const soundStore = useSoundStore.getState();
+    playHitSound(soundStore.comboCount);
+    soundStore.incrementCombo();
+
     // Delay the onHit callback until slicing starts
     setTimeout(onHit, 100);
   };
@@ -62,17 +69,17 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
       <pointLight position={[position[0], position[1], position[2] - 2]} intensity={1.5} />
 
       {!isSliced ? (
-        <mesh 
-          ref={meshRef} 
+        <mesh
+          ref={meshRef}
           position={position}
           rotation={[Math.PI / 2, 0, 0]}
           onClick={handleHit}
         >
           <cylinderGeometry args={[1, 1, 0.1, 32]} />
-          <meshStandardMaterial 
-            color="#DDDDDD" 
-            metalness={0.2} 
-            roughness={0.3} 
+          <meshStandardMaterial
+            color="#DDDDDD"
+            metalness={0.2}
+            roughness={0.3}
             map={texture}
             side={2}
             emissive="#404040"
