@@ -12,7 +12,7 @@ type GameControllerProps = {
 export default function GameController({ songUrl, onScore }: GameControllerProps) {
   const groupRef = useRef<Group>(null);
   const [coins, setCoins] = useState<{ id: number; position: [number, number, number] }[]>([]);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const audioRef = useRef<HTMLAudioElement>();
   const analyzerRef = useRef<AudioAnalyzer>();
   const { camera } = useThree();
 
@@ -21,9 +21,20 @@ export default function GameController({ songUrl, onScore }: GameControllerProps
       analyzerRef.current = new AudioAnalyzer();
     }
 
-    const audio = new Audio(songUrl);
+    const audio = new Audio();
+    audio.src = songUrl;
+    audio.crossOrigin = "anonymous";
+
+    audio.addEventListener('error', (e) => {
+      console.error('Audio loading error:', e);
+    });
+
+    audio.addEventListener('canplaythrough', () => {
+      console.log('Audio loaded and can play');
+      audio.play().catch(e => console.error('Play error:', e));
+    });
+
     audioRef.current = audio;
-    audio.play();
 
     if (audioRef.current) {
       analyzerRef.current.connect(audioRef.current);
@@ -31,8 +42,11 @@ export default function GameController({ songUrl, onScore }: GameControllerProps
     }
 
     return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
       analyzerRef.current?.disconnect();
-      audio.pause();
     };
   }, [songUrl]);
 

@@ -1,10 +1,19 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import path from "path";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Serve audio files from attached_assets directory
+app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets'), {
+  setHeaders: (res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Content-Type', 'audio/mpeg');
+  }
+}));
 
 app.use((req, res, next) => {
   const start = Date.now();
