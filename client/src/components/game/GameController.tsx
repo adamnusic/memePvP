@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Group } from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import CoinTarget from './CoinTarget';
+import Environment from './Environment';
 import { AudioAnalyzer } from './AudioAnalyzer';
 
 type GameControllerProps = {
@@ -93,7 +94,6 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
   useFrame(() => {
     const currentTime = Date.now();
 
-    // Only spawn if we're under the max limit and enough time has passed
     if (analyzerRef.current?.getBeatDetection() && 
         coins.length < MAX_COINS && 
         currentTime - lastSpawnTime.current > SPAWN_COOLDOWN) {
@@ -101,9 +101,9 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
       const newCoin = {
         id: Date.now(),
         position: [
-          Math.random() * 6 - 3, // x: -3 to 3 (reduced range)
-          Math.random() * 2 + 1,  // y: 1 to 3 (reduced range)
-          -10 // z: start closer
+          Math.random() * 4 - 2, // x: -2 to 2 (centered on road)
+          Math.random() * 1.5 + 1, // y: 1 to 2.5 (slightly higher)
+          -20 // z: start further back on the road
         ] as [number, number, number]
       };
       setCoins(prev => [...prev, newCoin]);
@@ -118,17 +118,20 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
   });
 
   return (
-    <group ref={groupRef}>
-      {coins.map(coin => (
-        <CoinTarget
-          key={coin.id}
-          position={coin.position}
-          onHit={() => {
-            setCoins(prev => prev.filter(c => c.id !== coin.id));
-            onScore(100);
-          }}
-        />
-      ))}
-    </group>
+    <>
+      <Environment />
+      <group ref={groupRef}>
+        {coins.map(coin => (
+          <CoinTarget
+            key={coin.id}
+            position={coin.position}
+            onHit={() => {
+              setCoins(prev => prev.filter(c => c.id !== coin.id));
+              onScore(100);
+            }}
+          />
+        ))}
+      </group>
+    </>
   );
 }
