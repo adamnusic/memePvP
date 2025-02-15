@@ -13,17 +13,22 @@ export default function DancingCharacter() {
   const textureUrl = '/attached_assets/on1 7173_a.png';
 
   // Load the FBX model and its animations
-  const fbx = useLoader(FBXLoader, modelUrl);
+  const fbx = useLoader(FBXLoader, modelUrl, (loader) => {
+    console.log('Loading FBX model...', modelUrl);
+  }, (error) => {
+    console.error('Error loading FBX:', error);
+  });
   const texture = useLoader(TextureLoader, textureUrl);
 
   useEffect(() => {
     if (fbx && fbx.animations.length) {
+      console.log('FBX loaded successfully with', fbx.animations.length, 'animations');
       // Create a new animation mixer
       const mixer = new AnimationMixer(fbx);
       mixerRef.current = mixer;
 
       // Apply texture to all meshes in the model
-      fbx.traverse((child) => {
+      fbx.traverse((child: any) => {
         if (child instanceof THREE.Mesh) {
           if (Array.isArray(child.material)) {
             child.material.forEach(mat => {
@@ -46,7 +51,7 @@ export default function DancingCharacter() {
         // Clean up resources
         mixer.stopAllAction();
         mixer.uncacheRoot(fbx);
-        fbx.traverse((child) => {
+        fbx.traverse((child: any) => {
           if (child instanceof THREE.Mesh) {
             if (child.geometry) {
               child.geometry.dispose();
@@ -63,6 +68,8 @@ export default function DancingCharacter() {
           }
         });
       };
+    } else {
+      console.error('FBX model loaded but has no animations or is invalid');
     }
   }, [fbx, texture]);
 
