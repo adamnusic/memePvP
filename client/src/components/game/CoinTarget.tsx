@@ -47,7 +47,7 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
   return (
     <>
       {/* Add point light to illuminate the coin */}
-      <pointLight position={[position[0], position[1], position[2] - 2]} intensity={1} />
+      <pointLight position={[position[0], position[1], position[2] - 2]} intensity={2} />
 
       <mesh 
         ref={meshRef} 
@@ -62,14 +62,14 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
         <cylinderGeometry args={[1, 1, 0.1, 32]} />
         <meshStandardMaterial 
           color="#FFFFFF" // Use white color to not tint the texture
-          metalness={0.3} // Reduce metalness for better texture visibility
-          roughness={0.4} // Adjust roughness for better light reflection
+          metalness={0.2} // Reduce metalness for better texture visibility
+          roughness={0.3} // Lower roughness for more shine
           map={texture}
           // Enable double-sided rendering
           side={2}
           // Increase emission for better visibility
-          emissive="#404040"
-          emissiveIntensity={0.5}
+          emissive="#808080"
+          emissiveIntensity={0.8}
         />
       </mesh>
     </>

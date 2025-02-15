@@ -28,7 +28,7 @@ export const preloadTextures = () => {
       textureLoader.load(
         imageUrl,
         (texture) => {
-          texture.flipY = false;
+          texture.flipY = true; // Changed to true to fix mirroring
           textureCache.set(imageUrl, texture);
           console.log(`Texture loaded: ${imageUrl}`);
         },
@@ -51,7 +51,7 @@ export const getRandomCoinTexture = (): Promise<Texture> => {
       textureLoader.load(
         imageUrl,
         (texture) => {
-          texture.flipY = false;
+          texture.flipY = true; // Changed to true to fix mirroring
           textureCache.set(imageUrl, texture);
           resolve(texture);
         },
