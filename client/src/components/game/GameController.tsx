@@ -10,9 +10,10 @@ type GameControllerProps = {
   songUrl: string;
   onScore: (points: number) => void;
   onDebugUpdate: (message: string) => void;
+  isVR?: boolean; // Added isVR prop
 };
 
-export default function GameController({ songUrl, onScore, onDebugUpdate }: GameControllerProps) {
+export default function GameController({ songUrl, onScore, onDebugUpdate, isVR = false }: GameControllerProps) {
   const groupRef = useRef<Group>(null);
   const [coins, setCoins] = useState<{ id: number; position: [number, number, number] }[]>([]);
   const audioRef = useRef<HTMLAudioElement>();
@@ -138,6 +139,7 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
             setCoins(prev => prev.filter(c => c.id !== coin.id));
             onScore(100);
           }}
+          isVR={isVR} // Added isVR prop
         />
       ))}
     </group>

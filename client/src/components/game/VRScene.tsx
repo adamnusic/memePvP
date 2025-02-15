@@ -42,6 +42,7 @@ export default function VRScene({ song }: VRSceneProps) {
             songUrl={song.url} 
             onScore={handleScore}
             onDebugUpdate={setDebugInfo}
+            isVR={true}
           />
         </XR>
       </Canvas>

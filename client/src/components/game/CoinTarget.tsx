@@ -9,9 +9,10 @@ import { useSoundStore, playHitSound } from './SoundManager';
 type CoinTargetProps = {
   position: [number, number, number];
   onHit: () => void;
+  isVR?: boolean;
 };
 
-export default function CoinTarget({ position, onHit }: CoinTargetProps) {
+export default function CoinTarget({ position, onHit, isVR = false }: CoinTargetProps) {
   const meshRef = useRef<Mesh>(null);
   const [texture, setTexture] = useState<Texture | null>(null);
   const [isSliced, setIsSliced] = useState(false);
@@ -50,20 +51,31 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
   const handleHit = (e: any) => {
     e.stopPropagation();
     setIsSliced(true);
-
-    // Play sound and increment combo
-    playHitSound(soundStore.comboCount);
-    soundStore.incrementCombo();
-
-    setTimeout(onHit, 100);
-  };
-
-  const handleSelect = () => {
-    setIsSliced(true);
     playHitSound(soundStore.comboCount);
     soundStore.incrementCombo();
     setTimeout(onHit, 100);
   };
+
+  // Render the coin mesh with or without VR interaction wrapper
+  const CoinMesh = () => (
+    <mesh
+      ref={meshRef}
+      position={position}
+      rotation={[Math.PI / 2, 0, 0]}
+      onClick={handleHit}
+    >
+      <cylinderGeometry args={[1, 1, 0.1, 32]} />
+      <meshStandardMaterial
+        color="#DDDDDD"
+        metalness={0.2}
+        roughness={0.3}
+        map={texture}
+        side={2}
+        emissive="#404040"
+        emissiveIntensity={0.6}
+      />
+    </mesh>
+  );
 
   return (
     <>
@@ -71,25 +83,13 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
       <pointLight position={[position[0], position[1], position[2] - 2]} intensity={1.5} />
 
       {!isSliced ? (
-        <Interactive onSelect={handleSelect}>
-          <mesh
-            ref={meshRef}
-            position={position}
-            rotation={[Math.PI / 2, 0, 0]}
-            onClick={handleHit}
-          >
-            <cylinderGeometry args={[1, 1, 0.1, 32]} />
-            <meshStandardMaterial
-              color="#DDDDDD"
-              metalness={0.2}
-              roughness={0.3}
-              map={texture}
-              side={2}
-              emissive="#404040"
-              emissiveIntensity={0.6}
-            />
-          </mesh>
-        </Interactive>
+        isVR ? (
+          <Interactive onSelect={handleHit}>
+            <CoinMesh />
+          </Interactive>
+        ) : (
+          <CoinMesh />
+        )
       ) : (
         <SlicedCoin
           position={position}
