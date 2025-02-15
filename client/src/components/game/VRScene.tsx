@@ -4,8 +4,7 @@ import { VRButton, XR, Controllers, Hands, useXR } from '@react-three/xr';
 import { Song } from '@/lib/songs';
 import Environment from './Environment';
 import GameController from './GameController';
-import VideoBackground from './VideoBackground';
-import { RayGrab } from '@react-three/xr';
+import VRVideoBackground from './VRVideoBackground';
 
 type VRSceneProps = {
   song: Song;
@@ -58,6 +57,7 @@ export default function VRScene({ song }: VRSceneProps) {
           <Controllers rayMaterial={{ color: 'blue' }} />
           <Hands />
           <ControllerStatus />
+          <VRVideoBackground />
           <Environment />
           <GameController 
             songUrl={song.url} 
