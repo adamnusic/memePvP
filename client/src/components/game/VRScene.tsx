@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { VRButton, XR } from '@react-three/xr';
-import { useXRStore } from '@/lib/xr-store';
 import { Song } from '@/lib/songs';
 import Environment from './Environment';
 import GameController from './GameController';
@@ -12,7 +11,6 @@ type VRSceneProps = {
 
 export default function VRScene({ song }: VRSceneProps) {
   const [score, setScore] = useState(0);
-  const store = useXRStore();
 
   const handleScore = (points: number) => {
     setScore(prev => prev + points);
@@ -25,14 +23,8 @@ export default function VRScene({ song }: VRSceneProps) {
         Score: {score}
       </div>
 
-      <Canvas
-        camera={{ position: [0, 1.5, 3] }}
-        gl={{
-          antialias: true,
-          xr: { enabled: true }
-        }}
-      >
-        <XR store={store}>
+      <Canvas>
+        <XR>
           <Environment />
           <GameController 
             songUrl={song.url} 
