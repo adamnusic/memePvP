@@ -4,6 +4,7 @@ import { useFrame } from '@react-three/fiber';
 import { useXR } from '@react-three/xr';
 import CoinTarget from './CoinTarget';
 import { AudioAnalyzer } from './AudioAnalyzer';
+import { useXRStore } from '@/lib/xr-store';
 
 type GameControllerProps = {
   songUrl: string;
@@ -15,7 +16,7 @@ export default function GameController({ songUrl, onScore }: GameControllerProps
   const [coins, setCoins] = useState<{ id: number; position: [number, number, number] }[]>([]);
   const audioRef = useRef<HTMLAudioElement>(null);
   const analyzerRef = useRef<AudioAnalyzer>();
-  const xr = useXR();
+  const { isPresenting } = useXRStore();
 
   useEffect(() => {
     if (!analyzerRef.current) {
@@ -51,11 +52,11 @@ export default function GameController({ songUrl, onScore }: GameControllerProps
   };
 
   useEffect(() => {
-    if (xr.session && audioRef.current) {
+    if (isPresenting && audioRef.current) {
       audioRef.current.play();
       analyzerRef.current?.resume();
     }
-  }, [xr.session]);
+  }, [isPresenting]);
 
   return (
     <group ref={groupRef}>
