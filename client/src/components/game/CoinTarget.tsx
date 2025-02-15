@@ -76,7 +76,6 @@ export default function CoinTarget({ position, onHit, isVR = false }: CoinTarget
               ref={meshRef}
               position={position}
               rotation={[Math.PI / 2, 0, 0]}
-              onClick={handleHit}
             >
               <cylinderGeometry args={[1, 1, 0.1, 32]} />
               <meshStandardMaterial
