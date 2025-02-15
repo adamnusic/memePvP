@@ -104,22 +104,21 @@ export default function GameController({ songUrl, onScore, onDebugUpdate, isVR =
       const newCoin = {
         id: Date.now(),
         position: [
-          Math.random() * 6 - 3, // x: -3 to 3 (reduced range)
-          Math.random() * 2 + 1,  // y: 1 to 3 (reduced range)
-          -10 // z: start closer
+          Math.random() * 4 - 2, // x: -2 to 2 (reduced range for better playability)
+          Math.random() * 1.5 + 1,  // y: 1 to 2.5 (reduced range)
+          -15 // z: start further back to compensate for faster speed
         ] as [number, number, number]
       };
       setCoins(prev => [...prev, newCoin]);
       lastSpawnTime.current = currentTime;
     }
 
-    // Clean up coins that are too far away and reset combo
+    // Clean up coins that are too far away
     setCoins(prev => {
       const newCoins = prev.filter(coin => {
         const mesh = groupRef.current?.getObjectById(coin.id);
         const keepCoin = mesh ? mesh.position.z <= 5 : true;
         if (!keepCoin) {
-          // Reset combo when a coin is missed
           useSoundStore.getState().resetCombo();
         }
         return keepCoin;

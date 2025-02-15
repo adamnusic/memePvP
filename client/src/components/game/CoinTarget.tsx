@@ -55,7 +55,7 @@ export default function CoinTarget({ position, onHit, isVR = false }: CoinTarget
 
       // Calculate new position
       const elapsed = (Date.now() - startTime.current) / 1000;
-      const speed = 2; // Adjust this value to control coin speed
+      const speed = 5; // Increased from 2 to 5 for faster movement
       meshRef.current.position.z = initialPosition.current.z + (elapsed * speed);
 
       // Check if coin has moved too far
