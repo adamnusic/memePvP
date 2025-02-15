@@ -38,6 +38,7 @@ export default function CoinTarget({ position, onHit, isVR = false }: CoinTarget
   });
 
   const handleHit = () => {
+    console.log("Coin hit!"); // Debug log
     if (!isSliced) {
       setIsSliced(true);
       playHitSound(soundStore.comboCount);
@@ -65,47 +66,63 @@ export default function CoinTarget({ position, onHit, isVR = false }: CoinTarget
     }
   });
 
-  const CoinMeshContent = () => (
-    <mesh
-      ref={meshRef}
-      position={position}
-      rotation={[Math.PI / 2, 0, 0]}
-    >
-      <cylinderGeometry args={[1, 1, 0.1, 32]} />
-      <meshStandardMaterial
-        color="#DDDDDD"
-        metalness={0.2}
-        roughness={0.3}
-        map={texture}
-        side={2}
-        emissive="#404040"
-        emissiveIntensity={0.6}
+  if (isSliced) {
+    return (
+      <SlicedCoin
+        position={position}
+        texture={texture}
+        onComplete={onHit}
       />
-    </mesh>
-  );
+    );
+  }
 
+  // VR mode with Interactive wrapper
+  if (isVR) {
+    return (
+      <Interactive onSelect={handleHit}>
+        <group>
+          <pointLight position={[0, 0, -2]} intensity={1.5} />
+          <mesh
+            ref={meshRef}
+            position={position}
+            rotation={[Math.PI / 2, 0, 0]}
+          >
+            <cylinderGeometry args={[1, 1, 0.1, 32]} />
+            <meshStandardMaterial
+              color="#DDDDDD"
+              metalness={0.2}
+              roughness={0.3}
+              map={texture}
+              side={2}
+              emissive="#404040"
+              emissiveIntensity={0.6}
+            />
+          </mesh>
+        </group>
+      </Interactive>
+    );
+  }
+
+  // Browser mode
   return (
-    <>
-      <ambientLight intensity={0.5} />
-      <pointLight position={[position[0], position[1], position[2] - 2]} intensity={1.5} />
-
-      {!isSliced ? (
-        isVR ? (
-          <Interactive onSelect={handleHit}>
-            <CoinMeshContent />
-          </Interactive>
-        ) : (
-          <group onClick={handleHit}>
-            <CoinMeshContent />
-          </group>
-        )
-      ) : (
-        <SlicedCoin
-          position={position}
-          texture={texture}
-          onComplete={onHit}
+    <group onClick={handleHit}>
+      <pointLight position={[0, 0, -2]} intensity={1.5} />
+      <mesh
+        ref={meshRef}
+        position={position}
+        rotation={[Math.PI / 2, 0, 0]}
+      >
+        <cylinderGeometry args={[1, 1, 0.1, 32]} />
+        <meshStandardMaterial
+          color="#DDDDDD"
+          metalness={0.2}
+          roughness={0.3}
+          map={texture}
+          side={2}
+          emissive="#404040"
+          emissiveIntensity={0.6}
         />
-      )}
-    </>
+      </mesh>
+    </group>
   );
 }

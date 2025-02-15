@@ -1,14 +1,33 @@
 import { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { VRButton, XR, Controllers, Hands } from '@react-three/xr';
+import { VRButton, XR, Controllers, Hands, useXR } from '@react-three/xr';
 import { Song } from '@/lib/songs';
 import Environment from './Environment';
 import GameController from './GameController';
 import VideoBackground from './VideoBackground';
+import { RayGrab } from '@react-three/xr';
 
 type VRSceneProps = {
   song: Song;
 };
+
+// Debug component to show controller status
+function ControllerStatus() {
+  const { player, controllers } = useXR();
+
+  if (!player) return null;
+
+  return (
+    <group>
+      {controllers.map((controller, i) => (
+        <mesh key={i} position={controller.controller.position}>
+          <sphereGeometry args={[0.02]} />
+          <meshStandardMaterial color="red" />
+        </mesh>
+      ))}
+    </group>
+  );
+}
 
 export default function VRScene({ song }: VRSceneProps) {
   const [score, setScore] = useState(0);
@@ -31,12 +50,14 @@ export default function VRScene({ song }: VRSceneProps) {
       <Canvas
         camera={{ position: [0, 1.6, 5.4], fov: 50 }}
         gl={{ 
-          antialias: true
+          antialias: true,
+          xrCompatible: true
         }}
       >
         <XR>
-          <Controllers />
+          <Controllers rayMaterial={{ color: 'blue' }} />
           <Hands />
+          <ControllerStatus />
           <Environment />
           <GameController 
             songUrl={song.url} 
