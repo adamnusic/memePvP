@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemeCoins Saber</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+
+        .container {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            margin: 1rem;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.5rem;
+            background: #333;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        .instructions {
+            margin-top: 1.5rem;
+        }
+
+        .warning {
+            color: #fbbf24;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <video autoplay loop muted playsinline>
+            <source src="F4LL3N.mp4" type="video/mp4">
+        </video>
+
+        <div class="content">
+            <h1>Memecoin PVP</h1>
+
+            <div class="form-group">
+                <label for="name">Enter your designation:</label>
+                <input type="text" id="name" placeholder="Your name">
+            </div>
+
+            <div class="form-group">
+                <label for="character">Select your faction:</label>
+                <select id="character">
+                    <option value="">Select a faction</option>
+                    <option value="ninja">Emperor's Loyalists</option>
+                    <option value="samurai">F4LL3N</option>
+                    <option value="wizard">Syndicate</option>
+                    <option value="knight">ON1 Hunter</option>
+                    <option value="knight">Ronin</option>
+                </select>
+            </div>
+
+            <button onclick="window.location.href='http://0.0.0.0:5000'">Start</button>
+
+            <div class="instructions">
+                <h2>How to Play:</h2>
+                <ul>
+                    <li>Put on your VR headset</li>
+                    <li>Use the VR controllers to pump the incoming memecoins</li>
+                    <li>Pump the memecoins and don't get dumped on.</li>
+                    <li>Avoid obstacles and aim for high scores!</li>
+                </ul>
+                <p class="warning">
+                    Note: This game requires a VR headset for the full WebXR experience.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
