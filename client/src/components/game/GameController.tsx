@@ -106,7 +106,7 @@ export default function GameController({ songUrl, onScore, onDebugUpdate, isVR =
         position: [
           Math.random() * 4 - 2, // x: -2 to 2 (reduced range for better playability)
           Math.random() * 1.5 + 1,  // y: 1 to 2.5 (reduced range)
-          -15 // z: start further back to compensate for faster speed
+          -20 // z: start further back to compensate for increased speed
         ] as [number, number, number]
       };
       setCoins(prev => [...prev, newCoin]);
