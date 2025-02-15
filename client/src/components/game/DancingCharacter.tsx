@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { useLoader } from '@react-three/fiber';
+import { useFrame, useLoader } from '@react-three/fiber';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { AnimationMixer, Group, LoopRepeat } from 'three';
+import * as THREE from 'three';
 
 export default function DancingCharacter() {
   const groupRef = useRef<Group>(null);
@@ -37,7 +38,7 @@ export default function DancingCharacter() {
   }, []);
 
   // Update animation on each frame
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (mixerRef.current) {
       mixerRef.current.update(delta);
     }
