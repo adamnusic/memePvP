@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { VRButton, XR } from '@react-three/xr';
+import { VRButton, Interactive } from '@react-three/xr';
 import { Song } from '@/lib/songs';
 import Environment from './Environment';
 import GameController from './GameController';
@@ -23,14 +23,21 @@ export default function VRScene({ song }: VRSceneProps) {
         Score: {score}
       </div>
 
-      <Canvas>
-        <XR>
-          <Environment />
-          <GameController 
-            songUrl={song.url} 
-            onScore={handleScore}
-          />
-        </XR>
+      <Canvas
+        camera={{ position: [0, 1.5, 3], fov: 50 }}
+        gl={{ 
+          antialias: true,
+          xr: {
+            enabled: true,
+            frameRate: 90
+          }
+        }}
+      >
+        <Environment />
+        <GameController 
+          songUrl={song.url} 
+          onScore={handleScore}
+        />
       </Canvas>
     </div>
   );

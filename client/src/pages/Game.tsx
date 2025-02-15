@@ -12,8 +12,8 @@ export default function Game() {
     async function checkVRSupport() {
       try {
         if ('xr' in navigator) {
-          const supported = await (navigator as any).xr?.isSessionSupported('immersive-vr');
-          setIsVRSupported(supported);
+          const supported = await navigator.xr?.isSessionSupported('immersive-vr');
+          setIsVRSupported(!!supported);
         }
       } catch (error) {
         console.error('Error checking VR support:', error);
