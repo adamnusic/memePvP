@@ -1,11 +1,12 @@
 import { create } from 'zustand';
+import type { WebXRManager } from 'three';
 
 interface XRState {
-  isVRMode: boolean;
-  setVRMode: (enabled: boolean) => void;
+  xrManager: WebXRManager | null;
+  setXRManager: (manager: WebXRManager) => void;
 }
 
 export const useXRStore = create<XRState>((set) => ({
-  isVRMode: false,
-  setVRMode: (enabled) => set({ isVRMode: enabled }),
+  xrManager: null,
+  setXRManager: (manager) => set({ xrManager: manager }),
 }));
