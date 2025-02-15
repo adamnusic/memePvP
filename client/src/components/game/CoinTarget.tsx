@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Mesh, Texture } from 'three';
 import { useFrame } from '@react-three/fiber';
+import { Interactive } from '@react-three/xr';
 import { getRandomCoinTexture } from '@/lib/coinAssets';
 import SlicedCoin from './SlicedCoin';
 import { useSoundStore, playHitSound } from './SoundManager';
@@ -63,23 +64,25 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
       <pointLight position={[position[0], position[1], position[2] - 2]} intensity={1.5} />
 
       {!isSliced ? (
-        <mesh
-          ref={meshRef}
-          position={position}
-          rotation={[Math.PI / 2, 0, 0]}
-          onClick={handleHit}
-        >
-          <cylinderGeometry args={[1, 1, 0.1, 32]} />
-          <meshStandardMaterial
-            color="#DDDDDD"
-            metalness={0.2}
-            roughness={0.3}
-            map={texture}
-            side={2}
-            emissive="#404040"
-            emissiveIntensity={0.6}
-          />
-        </mesh>
+        <Interactive onSelect={handleHit}>
+          <mesh
+            ref={meshRef}
+            position={position}
+            rotation={[Math.PI / 2, 0, 0]}
+            onClick={handleHit} // Keep mouse click support for non-VR mode
+          >
+            <cylinderGeometry args={[1, 1, 0.1, 32]} />
+            <meshStandardMaterial
+              color="#DDDDDD"
+              metalness={0.2}
+              roughness={0.3}
+              map={texture}
+              side={2}
+              emissive="#404040"
+              emissiveIntensity={0.6}
+            />
+          </mesh>
+        </Interactive>
       ) : (
         <SlicedCoin
           position={position}
