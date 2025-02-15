@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Mesh, Texture } from 'three';
 import { useFrame } from '@react-three/fiber';
 import { getRandomCoinTexture } from '@/lib/coinAssets';
@@ -14,11 +14,11 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
   const meshRef = useRef<Mesh>(null);
   const [texture, setTexture] = useState<Texture | null>(null);
   const [isSliced, setIsSliced] = useState(false);
+  const soundStore = useSoundStore();
 
-  useEffect(() => {
+  // Load texture when component mounts
+  useState(() => {
     let isMounted = true;
-
-    // Load texture when component mounts
     getRandomCoinTexture()
       .then((loadedTexture) => {
         if (isMounted) {
@@ -28,17 +28,14 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
       .catch((error) => {
         console.error('Error loading texture:', error);
       });
-
     return () => {
       isMounted = false;
     };
-  }, []);
+  });
 
   useFrame(() => {
     if (meshRef.current && !isSliced) {
-      // Rotate around Y axis for spinning animation
       meshRef.current.rotation.y += 0.02;
-      // Move coin towards player
       meshRef.current.position.z += 0.1;
 
       if (meshRef.current.position.z > 5) {
@@ -51,21 +48,16 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
     e.stopPropagation();
     setIsSliced(true);
 
-    // Increment combo and play appropriate sound
-    const soundStore = useSoundStore.getState();
+    // Play sound and increment combo
     playHitSound(soundStore.comboCount);
     soundStore.incrementCombo();
 
-    // Delay the onHit callback until slicing starts
     setTimeout(onHit, 100);
   };
 
   return (
     <>
-      {/* Add ambient light for global illumination */}
       <ambientLight intensity={0.5} />
-
-      {/* Add point light to illuminate the coin */}
       <pointLight position={[position[0], position[1], position[2] - 2]} intensity={1.5} />
 
       {!isSliced ? (
