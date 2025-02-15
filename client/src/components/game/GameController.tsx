@@ -7,18 +7,19 @@ import { AudioAnalyzer } from './AudioAnalyzer';
 type GameControllerProps = {
   songUrl: string;
   onScore: (points: number) => void;
+  onDebugUpdate: (message: string) => void;
 };
 
-export default function GameController({ songUrl, onScore }: GameControllerProps) {
+export default function GameController({ songUrl, onScore, onDebugUpdate }: GameControllerProps) {
   const groupRef = useRef<Group>(null);
   const [coins, setCoins] = useState<{ id: number; position: [number, number, number] }[]>([]);
   const audioRef = useRef<HTMLAudioElement>();
   const analyzerRef = useRef<AudioAnalyzer>();
   const { camera } = useThree();
-  const [debugInfo, setDebugInfo] = useState<string>('');
 
   useEffect(() => {
     console.log('Starting audio initialization...');
+    onDebugUpdate('Starting audio initialization...');
 
     const initAudio = async () => {
       try {
@@ -37,31 +38,31 @@ export default function GameController({ songUrl, onScore }: GameControllerProps
         // Set up audio element event listeners
         audio.addEventListener('loadstart', () => {
           console.log('Audio loading started');
-          setDebugInfo('Loading audio...');
+          onDebugUpdate('Loading audio...');
         });
 
         audio.addEventListener('error', (e) => {
           console.error('Audio loading error:', e);
-          setDebugInfo('Error loading audio');
+          onDebugUpdate('Error loading audio');
         });
 
         audio.addEventListener('canplaythrough', async () => {
           console.log('Audio loaded and ready to play');
-          setDebugInfo('Audio loaded, initializing...');
+          onDebugUpdate('Audio loaded, initializing...');
           try {
             if (analyzerRef.current) {
               const connected = await analyzerRef.current.connect(audio);
               if (connected) {
                 console.log('Starting audio playback...');
-                setDebugInfo('Starting playback...');
+                onDebugUpdate('Starting playback...');
                 await audio.play();
                 console.log('Audio playback started successfully');
-                setDebugInfo('Game running');
+                onDebugUpdate('Game running');
               }
             }
           } catch (error) {
             console.error('Error starting audio playback:', error);
-            setDebugInfo('Error starting playback');
+            onDebugUpdate('Error starting playback');
           }
         });
 
@@ -69,7 +70,7 @@ export default function GameController({ songUrl, onScore }: GameControllerProps
 
       } catch (error) {
         console.error('Error in audio initialization:', error);
-        setDebugInfo('Audio initialization failed');
+        onDebugUpdate('Audio initialization failed');
       }
     };
 
@@ -83,7 +84,7 @@ export default function GameController({ songUrl, onScore }: GameControllerProps
       }
       analyzerRef.current?.disconnect();
     };
-  }, [songUrl]);
+  }, [songUrl, onDebugUpdate]);
 
   useFrame(() => {
     if (analyzerRef.current?.getBeatDetection()) {
@@ -102,9 +103,6 @@ export default function GameController({ songUrl, onScore }: GameControllerProps
 
   return (
     <group ref={groupRef}>
-      <div className="absolute top-8 left-4 text-white text-sm z-10 bg-black/50 p-2 rounded">
-        {debugInfo}
-      </div>
       {coins.map(coin => (
         <CoinTarget
           key={coin.id}
