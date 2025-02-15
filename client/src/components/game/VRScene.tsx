@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { VRButton, XR, Controllers, Hands } from '@react-three/xr';
 import { Song } from '@/lib/songs';
 import Environment from './Environment';
 import GameController from './GameController';
-import VideoBackground from './VideoBackground';
+import { useXRStore } from '@/lib/xr-store';
 
 type VRSceneProps = {
   song: Song;
@@ -13,6 +13,12 @@ type VRSceneProps = {
 export default function VRScene({ song }: VRSceneProps) {
   const [score, setScore] = useState(0);
   const [debugInfo, setDebugInfo] = useState<string>('');
+  const setVRMode = useXRStore(state => state.setVRMode);
+
+  useEffect(() => {
+    setVRMode(true);
+    return () => setVRMode(false);
+  }, [setVRMode]);
 
   const handleScore = (points: number) => {
     setScore(prev => prev + points);
