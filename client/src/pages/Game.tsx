@@ -50,13 +50,13 @@ export default function Game() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 to-blue-900">
         <div className="text-center text-white p-8">
-          <h1 className="text-3xl font-bold mb-4">{song.title}</h1>
+          <h1 className="text-3xl font-bold mb-4">Meme PvP</h1>
           <p className="mb-8">
-            {isVRSupported 
+            {isVRSupported
               ? 'Put on your VR headset and get ready to dance!'
               : 'Use your mouse to click the coins and score points!'}
           </p>
-          <Button 
+          <Button
             onClick={handleStartGame}
             className="bg-gradient-to-r from-yellow-400 to-orange-600 hover:opacity-90 mb-4"
           >
