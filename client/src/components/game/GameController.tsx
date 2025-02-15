@@ -4,6 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import CoinTarget from './CoinTarget';
 import { AudioAnalyzer } from './AudioAnalyzer';
 import { useSoundStore } from './SoundManager';
+import DancingCharacter from './DancingCharacter';
 
 type GameControllerProps = {
   songUrl: string;
@@ -128,6 +129,7 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
 
   return (
     <group ref={groupRef}>
+      <DancingCharacter />
       {coins.map(coin => (
         <CoinTarget
           key={coin.id}
