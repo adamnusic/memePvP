@@ -16,6 +16,8 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
     // Load a random coin texture when component mounts
     const coinImageUrl = getRandomCoinImage();
     textureLoader.load(coinImageUrl, (loadedTexture) => {
+      // Adjust texture properties for better visibility
+      loadedTexture.flipY = false;
       setTexture(loadedTexture);
     });
   }, []);
@@ -34,25 +36,33 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
   });
 
   return (
-    <mesh 
-      ref={meshRef} 
-      position={position}
-      // Rotate 90 degrees around X axis to face the camera
-      rotation={[Math.PI / 2, 0, 0]}
-      onClick={(e) => {
-        e.stopPropagation();
-        onHit();
-      }}
-    >
-      <cylinderGeometry args={[1, 1, 0.1, 32]} />
-      <meshStandardMaterial 
-        color="#FFD700"
-        metalness={0.8}
-        roughness={0.2}
-        map={texture}
-        // Enable double-sided rendering
-        side={2}
-      />
-    </mesh>
+    <>
+      {/* Add point light to illuminate the coin */}
+      <pointLight position={[position[0], position[1], position[2] - 2]} intensity={1} />
+
+      <mesh 
+        ref={meshRef} 
+        position={position}
+        // Rotate 90 degrees around X axis to face the camera
+        rotation={[Math.PI / 2, 0, 0]}
+        onClick={(e) => {
+          e.stopPropagation();
+          onHit();
+        }}
+      >
+        <cylinderGeometry args={[1, 1, 0.1, 32]} />
+        <meshStandardMaterial 
+          color="#FFFFFF" // Use white color to not tint the texture
+          metalness={0.3} // Reduce metalness for better texture visibility
+          roughness={0.4} // Adjust roughness for better light reflection
+          map={texture}
+          // Enable double-sided rendering
+          side={2}
+          // Increase emission for better visibility
+          emissive="#404040"
+          emissiveIntensity={0.5}
+        />
+      </mesh>
+    </>
   );
 }
