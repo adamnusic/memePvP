@@ -1,6 +1,7 @@
-import { useRef } from 'react';
-import { Mesh } from 'three';
+import { useRef, useEffect, useState } from 'react';
+import { Mesh, Texture } from 'three';
 import { useFrame } from '@react-three/fiber';
+import { textureLoader, getRandomCoinImage } from '@/lib/coinAssets';
 
 type CoinTargetProps = {
   position: [number, number, number];
@@ -9,6 +10,15 @@ type CoinTargetProps = {
 
 export default function CoinTarget({ position, onHit }: CoinTargetProps) {
   const meshRef = useRef<Mesh>(null);
+  const [texture, setTexture] = useState<Texture | null>(null);
+
+  useEffect(() => {
+    // Load a random coin texture when component mounts
+    const coinImageUrl = getRandomCoinImage();
+    textureLoader.load(coinImageUrl, (loadedTexture) => {
+      setTexture(loadedTexture);
+    });
+  }, []);
 
   useFrame(() => {
     if (meshRef.current) {
@@ -36,9 +46,10 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
     >
       <cylinderGeometry args={[1, 1, 0.1, 32]} />
       <meshStandardMaterial 
-        color="#FFD700" 
-        metalness={0.8} 
+        color="#FFD700"
+        metalness={0.8}
         roughness={0.2}
+        map={texture}
         // Enable double-sided rendering
         side={2}
       />
