@@ -35,19 +35,6 @@ export default function CoinTarget({ position, onHit, isVR = false }: CoinTarget
     };
   });
 
-  useFrame(() => {
-    if (meshRef.current && !isSliced) {
-      meshRef.current.rotation.y += 0.02;
-      meshRef.current.position.z += 0.1;
-
-      if (meshRef.current.position.z > 5) {
-        // Reset combo when coin is missed
-        soundStore.resetCombo();
-        onHit();
-      }
-    }
-  });
-
   const handleHit = (e: any) => {
     e.stopPropagation();
     setIsSliced(true);
@@ -57,25 +44,40 @@ export default function CoinTarget({ position, onHit, isVR = false }: CoinTarget
   };
 
   // Render the coin mesh with or without VR interaction wrapper
-  const CoinMesh = () => (
-    <mesh
-      ref={meshRef}
-      position={position}
-      rotation={[Math.PI / 2, 0, 0]}
-      onClick={handleHit}
-    >
-      <cylinderGeometry args={[1, 1, 0.1, 32]} />
-      <meshStandardMaterial
-        color="#DDDDDD"
-        metalness={0.2}
-        roughness={0.3}
-        map={texture}
-        side={2}
-        emissive="#404040"
-        emissiveIntensity={0.6}
-      />
-    </mesh>
-  );
+  const CoinMesh = () => {
+    useFrame(() => {
+      if (meshRef.current && !isSliced) {
+        meshRef.current.rotation.y += 0.02;
+        meshRef.current.position.z += 0.1;
+
+        if (meshRef.current.position.z > 5) {
+          // Reset combo when coin is missed
+          soundStore.resetCombo();
+          onHit();
+        }
+      }
+    });
+
+    return (
+      <mesh
+        ref={meshRef}
+        position={position}
+        rotation={[Math.PI / 2, 0, 0]}
+        onClick={handleHit}
+      >
+        <cylinderGeometry args={[1, 1, 0.1, 32]} />
+        <meshStandardMaterial
+          color="#DDDDDD"
+          metalness={0.2}
+          roughness={0.3}
+          map={texture}
+          side={2}
+          emissive="#404040"
+          emissiveIntensity={0.6}
+        />
+      </mesh>
+    );
+  };
 
   return (
     <>
