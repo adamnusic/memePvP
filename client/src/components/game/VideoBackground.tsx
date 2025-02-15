@@ -17,12 +17,11 @@ export default function VideoBackground() {
         position: 'fixed',
         top: 0,
         left: 0,
-        width: '100vw', // Use viewport width
-        height: '100vh', // Use viewport height
+        width: '100%',
+        height: '100%',
         zIndex: -1,
         overflow: 'hidden',
-        opacity: 0.6, // Slightly more visible
-        backgroundColor: 'black', // Add background color to help with contrast
+        opacity: 0.6, // Adjust for desired blend with game
       }}
     >
       <video
@@ -32,14 +31,8 @@ export default function VideoBackground() {
         muted
         playsInline
         style={{
-          minWidth: '100%',
-          minHeight: '100%',
-          width: 'auto',
-          height: 'auto',
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)', // Center the video
+          width: '100%',
+          height: '100%',
           objectFit: 'cover',
         }}
       >
