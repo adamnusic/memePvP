@@ -9,6 +9,14 @@ export default function Game() {
   const [isPlaying, setIsPlaying] = useState(false);
   const song = songs.find(s => s.id === songId);
 
+  const handleStartGame = () => {
+    // Initialize audio context on user interaction
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    const audioContext = new AudioContext();
+    audioContext.resume().catch(console.error);
+    setIsPlaying(true);
+  };
+
   if (!song) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 to-blue-900">
@@ -27,7 +35,7 @@ export default function Game() {
           <h1 className="text-3xl font-bold mb-4">{song.title}</h1>
           <p className="mb-8">Use your mouse to click the coins and score points!</p>
           <Button 
-            onClick={() => setIsPlaying(true)}
+            onClick={handleStartGame}
             className="bg-gradient-to-r from-yellow-400 to-orange-600 hover:opacity-90"
           >
             Start Game
