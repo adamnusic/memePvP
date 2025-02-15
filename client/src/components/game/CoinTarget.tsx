@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import { Mesh, Texture } from 'three';
 import { useFrame } from '@react-three/fiber';
 import { getRandomCoinTexture } from '@/lib/coinAssets';
-import CoinExplosion from './CoinExplosion';
+import SlicedCoin from './SlicedCoin';
 
 type CoinTargetProps = {
   position: [number, number, number];
@@ -12,7 +12,7 @@ type CoinTargetProps = {
 export default function CoinTarget({ position, onHit }: CoinTargetProps) {
   const meshRef = useRef<Mesh>(null);
   const [texture, setTexture] = useState<Texture | null>(null);
-  const [isExploding, setIsExploding] = useState(false);
+  const [isSliced, setIsSliced] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -34,7 +34,7 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
   }, []);
 
   useFrame(() => {
-    if (meshRef.current && !isExploding) {
+    if (meshRef.current && !isSliced) {
       // Rotate around Y axis for spinning animation
       meshRef.current.rotation.y += 0.02;
       // Move coin towards player
@@ -48,8 +48,8 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
 
   const handleHit = (e: any) => {
     e.stopPropagation();
-    setIsExploding(true);
-    // Delay the onHit callback until explosion starts
+    setIsSliced(true);
+    // Delay the onHit callback until slicing starts
     setTimeout(onHit, 100);
   };
 
@@ -61,11 +61,10 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
       {/* Add point light to illuminate the coin */}
       <pointLight position={[position[0], position[1], position[2] - 2]} intensity={1.5} />
 
-      {!isExploding ? (
+      {!isSliced ? (
         <mesh 
           ref={meshRef} 
           position={position}
-          // Rotate 90 degrees around X axis to face the camera
           rotation={[Math.PI / 2, 0, 0]}
           onClick={handleHit}
         >
@@ -81,9 +80,10 @@ export default function CoinTarget({ position, onHit }: CoinTargetProps) {
           />
         </mesh>
       ) : (
-        <CoinExplosion
+        <SlicedCoin
           position={position}
-          onComplete={() => setIsExploding(false)}
+          texture={texture}
+          onComplete={() => setIsSliced(false)}
         />
       )}
     </>
