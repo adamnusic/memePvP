@@ -49,7 +49,7 @@ export default function DancingCharacter() {
     if (groupRef.current) {
       groupRef.current.scale.set(0.02, 0.02, 0.02); // Keep the same scale
       groupRef.current.position.set(0, -1.5, -2); // Position further back for better VR visibility
-      groupRef.current.rotation.set(0, Math.PI, 0); // Rotate 180 degrees to face camera
+      groupRef.current.rotation.set(0, 0, 0); // Face the camera directly
     }
   }, []);
 
