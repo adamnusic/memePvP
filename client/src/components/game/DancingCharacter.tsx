@@ -48,8 +48,8 @@ export default function DancingCharacter() {
     // Scale and position adjustments
     if (groupRef.current) {
       groupRef.current.scale.set(0.02, 0.02, 0.02); // Scale down the model
-      groupRef.current.position.set(0, 0, -5); // Position it in front
-      groupRef.current.rotation.set(0, Math.PI, 0); // Rotate 180 degrees around Y axis
+      groupRef.current.position.set(0, 0, -2); // Position closer to camera (z changed from -5 to -2)
+      groupRef.current.rotation.set(0, Math.PI, 0); // Rotate 180 degrees around Y axis to face camera
     }
   }, []);
 
