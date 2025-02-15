@@ -75,22 +75,59 @@ export default function DancingCharacter() {
   }
 
   return (
-    <group ref={groupRef}>
-      {/* Dance Floor */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
-        <planeGeometry args={[20, 20]} />
-        <meshStandardMaterial 
-          map={floorTexture}
-          normalMap={floorNormalMap}
-          normalScale={[0.5, 0.5]} // Adjust the intensity of the normal map
-          side={THREE.DoubleSide}
-          roughness={0.8}
-          metalness={0.2}
-        />
+    <>
+      {/* Space themed background */}
+      <color attach="background" args={['#000020']} /> {/* Deep space blue */}
+
+      {/* Ambient lighting for space environment */}
+      <ambientLight intensity={0.2} />
+      <pointLight position={[10, 10, 10]} intensity={0.5} color="#4444ff" />
+      <pointLight position={[-10, -10, -10]} intensity={0.3} color="#ff4444" />
+
+      {/* Stars */}
+      <mesh>
+        <sphereGeometry args={[50, 64, 64]} />
+        <meshBasicMaterial
+          color="#ffffff"
+          side={THREE.BackSide}
+          opacity={0.1}
+          transparent
+          vertexColors
+        >
+          <points>
+            {Array(2000).fill(null).map((_, i) => (
+              <pointLight
+                key={i}
+                position={[
+                  Math.random() * 100 - 50,
+                  Math.random() * 100 - 50,
+                  Math.random() * 100 - 50
+                ]}
+                intensity={0.005}
+                color="#ffffff"
+              />
+            ))}
+          </points>
+        </meshBasicMaterial>
       </mesh>
 
-      {/* Character Model */}
-      <primitive object={fbx} />
-    </group>
+      <group ref={groupRef}>
+        {/* Dance Floor */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
+          <planeGeometry args={[20, 20]} />
+          <meshStandardMaterial 
+            map={floorTexture}
+            normalMap={floorNormalMap}
+            normalScale={[0.5, 0.5]} 
+            side={THREE.DoubleSide}
+            roughness={0.8}
+            metalness={0.2}
+          />
+        </mesh>
+
+        {/* Character Model */}
+        <primitive object={fbx} />
+      </group>
+    </>
   );
 }
