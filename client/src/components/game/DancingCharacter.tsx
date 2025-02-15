@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
-import { AnimationMixer, Group, LoopRepeat } from 'three';
+import { AnimationMixer, Group, LoopRepeat, TextureLoader } from 'three';
 import * as THREE from 'three';
 
 export default function DancingCharacter() {
@@ -10,12 +10,28 @@ export default function DancingCharacter() {
 
   // Load the FBX model and its animations
   const fbx = useLoader(FBXLoader, '/attached_assets/Wave Hip Hop Dance.fbx');
+  const texture = useLoader(TextureLoader, '/attached_assets/on1 7173_a.png');
 
   useEffect(() => {
     if (fbx && fbx.animations.length) {
       // Create a new animation mixer
       const mixer = new AnimationMixer(fbx);
       mixerRef.current = mixer;
+
+      // Apply texture to all meshes in the model
+      fbx.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach(mat => {
+              mat.map = texture;
+              mat.needsUpdate = true;
+            });
+          } else {
+            child.material.map = texture;
+            child.material.needsUpdate = true;
+          }
+        }
+      });
 
       // Play the first animation
       const action = mixer.clipAction(fbx.animations[0]);
@@ -26,7 +42,7 @@ export default function DancingCharacter() {
         mixer.stopAllAction();
       };
     }
-  }, [fbx]);
+  }, [fbx, texture]);
 
   useEffect(() => {
     // Scale and position adjustments
