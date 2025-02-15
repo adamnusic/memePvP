@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "wouter";
 import VRScene from "@/components/game/VRScene";
 import { songs } from "@/lib/songs";
-import { Button } from "@/components/ui/button";
 
 export default function Game() {
   const { songId } = useParams();
@@ -11,16 +10,28 @@ export default function Game() {
 
   useEffect(() => {
     async function checkVRSupport() {
-      if ('xr' in navigator) {
-        const supported = await navigator.xr.isSessionSupported('immersive-vr');
-        setIsVRSupported(supported);
+      try {
+        if ('xr' in navigator) {
+          const supported = await (navigator as any).xr?.isSessionSupported('immersive-vr');
+          setIsVRSupported(supported);
+        }
+      } catch (error) {
+        console.error('Error checking VR support:', error);
+        setIsVRSupported(false);
       }
     }
     checkVRSupport();
   }, []);
 
   if (!song) {
-    return <div>Song not found</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 to-blue-900">
+        <div className="text-center text-white p-8">
+          <h1 className="text-3xl font-bold mb-4">Song Not Found</h1>
+          <p>The selected song could not be found.</p>
+        </div>
+      </div>
+    );
   }
 
   if (!isVRSupported) {
