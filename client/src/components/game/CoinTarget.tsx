@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Mesh, Texture } from 'three';
+import { Mesh, Texture, Vector3 } from 'three';
 import { useFrame } from '@react-three/fiber';
 import { Interactive } from '@react-three/xr';
 import { getRandomCoinTexture } from '@/lib/coinAssets';
@@ -17,6 +17,8 @@ export default function CoinTarget({ position, onHit, isVR = false }: CoinTarget
   const [texture, setTexture] = useState<Texture | null>(null);
   const [isSliced, setIsSliced] = useState(false);
   const soundStore = useSoundStore();
+  const startTime = useRef(Date.now());
+  const initialPosition = useRef(new Vector3(...position));
 
   // Load texture when component mounts
   useState(() => {
@@ -46,37 +48,21 @@ export default function CoinTarget({ position, onHit, isVR = false }: CoinTarget
   // Move coin and handle rotation
   useFrame(() => {
     if (meshRef.current && !isSliced) {
+      // Update rotation
       meshRef.current.rotation.y += 0.02;
-      meshRef.current.position.z += 0.1;
 
+      // Calculate new position
+      const elapsed = (Date.now() - startTime.current) / 1000;
+      const speed = 2; // Adjust this value to control coin speed
+      meshRef.current.position.z = initialPosition.current.z + (elapsed * speed);
+
+      // Check if coin has moved too far
       if (meshRef.current.position.z > 5) {
-        // Reset combo when coin is missed
         soundStore.resetCombo();
         onHit();
       }
     }
   });
-
-  // Render the coin mesh
-  const CoinMesh = () => (
-    <mesh
-      ref={meshRef}
-      position={position}
-      rotation={[Math.PI / 2, 0, 0]}
-      onClick={handleHit}
-    >
-      <cylinderGeometry args={[1, 1, 0.1, 32]} />
-      <meshStandardMaterial
-        color="#DDDDDD"
-        metalness={0.2}
-        roughness={0.3}
-        map={texture}
-        side={2}
-        emissive="#404040"
-        emissiveIntensity={0.6}
-      />
-    </mesh>
-  );
 
   return (
     <>
@@ -86,16 +72,48 @@ export default function CoinTarget({ position, onHit, isVR = false }: CoinTarget
       {!isSliced ? (
         isVR ? (
           <Interactive onSelect={handleHit}>
-            <CoinMesh />
+            <mesh
+              ref={meshRef}
+              position={position}
+              rotation={[Math.PI / 2, 0, 0]}
+              onClick={handleHit}
+            >
+              <cylinderGeometry args={[1, 1, 0.1, 32]} />
+              <meshStandardMaterial
+                color="#DDDDDD"
+                metalness={0.2}
+                roughness={0.3}
+                map={texture}
+                side={2}
+                emissive="#404040"
+                emissiveIntensity={0.6}
+              />
+            </mesh>
           </Interactive>
         ) : (
-          <CoinMesh />
+          <mesh
+            ref={meshRef}
+            position={position}
+            rotation={[Math.PI / 2, 0, 0]}
+            onClick={handleHit}
+          >
+            <cylinderGeometry args={[1, 1, 0.1, 32]} />
+            <meshStandardMaterial
+              color="#DDDDDD"
+              metalness={0.2}
+              roughness={0.3}
+              map={texture}
+              side={2}
+              emissive="#404040"
+              emissiveIntensity={0.6}
+            />
+          </mesh>
         )
       ) : (
         <SlicedCoin
           position={position}
           texture={texture}
-          onComplete={() => setIsSliced(false)}
+          onComplete={onHit}
         />
       )}
     </>
