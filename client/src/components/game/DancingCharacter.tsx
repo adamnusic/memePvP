@@ -12,6 +12,7 @@ export default function DancingCharacter() {
   const fbx = useLoader(FBXLoader, '/attached_assets/Wave Hip Hop Dance.fbx');
   const characterTexture = useLoader(TextureLoader, '/attached_assets/on1 7173_a.png');
   const floorTexture = useLoader(TextureLoader, '/attached_assets/4483_a.png');
+  const floorNormalMap = useLoader(TextureLoader, '/attached_assets/4483_n.png');
 
   useEffect(() => {
     if (fbx && fbx.animations.length) {
@@ -60,11 +61,17 @@ export default function DancingCharacter() {
     }
   });
 
-  // Configure floor texture
+  // Configure floor textures
   if (floorTexture) {
     floorTexture.wrapS = THREE.RepeatWrapping;
     floorTexture.wrapT = THREE.RepeatWrapping;
     floorTexture.repeat.set(4, 4); // Repeat the texture
+  }
+
+  if (floorNormalMap) {
+    floorNormalMap.wrapS = THREE.RepeatWrapping;
+    floorNormalMap.wrapT = THREE.RepeatWrapping;
+    floorNormalMap.repeat.set(4, 4); // Match the diffuse texture repeat
   }
 
   return (
@@ -74,6 +81,8 @@ export default function DancingCharacter() {
         <planeGeometry args={[20, 20]} />
         <meshStandardMaterial 
           map={floorTexture}
+          normalMap={floorNormalMap}
+          normalScale={[0.5, 0.5]} // Adjust the intensity of the normal map
           side={THREE.DoubleSide}
           roughness={0.8}
           metalness={0.2}
