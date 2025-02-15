@@ -3,29 +3,40 @@ export class AudioAnalyzer {
   private analyser: AnalyserNode;
   private dataArray: Uint8Array;
   private source?: MediaElementAudioSourceNode;
-  private beatThreshold: number = 80; // Lower threshold for more frequent beats
+  private beatThreshold: number = 1; // Lower threshold to ensure we get some beats
   private lastBeatTime: number = 0;
-  private beatCooldown: number = 500; // Minimum time between beats in ms
+  private beatCooldown: number = 300; // Shorter cooldown for more frequent beats
 
   constructor() {
-    this.audioContext = new AudioContext();
+    this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.fftSize = 256;
     const bufferLength = this.analyser.frequencyBinCount;
     this.dataArray = new Uint8Array(bufferLength);
   }
 
-  connect(audioElement: HTMLAudioElement) {
+  async connect(audioElement: HTMLAudioElement) {
     try {
+      // Ensure audio context is running
+      if (this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
+      }
+
+      // Disconnect any existing source
       if (this.source) {
         this.source.disconnect();
       }
+
+      // Create and connect new source
       this.source = this.audioContext.createMediaElementSource(audioElement);
       this.source.connect(this.analyser);
       this.analyser.connect(this.audioContext.destination);
+
       console.log('Audio analyzer connected successfully');
+      return true;
     } catch (error) {
       console.error('Error connecting audio analyzer:', error);
+      return false;
     }
   }
 
@@ -51,14 +62,20 @@ export class AudioAnalyzer {
 
     if (bassAverage > this.beatThreshold) {
       this.lastBeatTime = now;
+      console.log('Beat detected! Average:', bassAverage);
       return true;
     }
     return false;
   }
 
-  resume() {
+  async resume() {
     if (this.audioContext.state === 'suspended') {
-      this.audioContext.resume().catch(console.error);
+      try {
+        await this.audioContext.resume();
+        console.log('Audio context resumed');
+      } catch (error) {
+        console.error('Error resuming audio context:', error);
+      }
     }
   }
 
