@@ -29,7 +29,7 @@ export default function VRScene({ song }: VRSceneProps) {
       </div>
 
       <Canvas
-        camera={{ position: [0, 1.6, 3], fov: 50 }}
+        camera={{ position: [0, 1.6, 5.4], fov: 50 }}
         gl={{ 
           antialias: true
         }}

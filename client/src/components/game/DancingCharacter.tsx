@@ -47,9 +47,9 @@ export default function DancingCharacter() {
   useEffect(() => {
     // Scale and position adjustments
     if (groupRef.current) {
-      groupRef.current.scale.set(0.02, 0.02, 0.02); // Scale down the model
-      groupRef.current.position.set(0, -0.5, -0.5); // Position much closer to camera and slightly lower
-      groupRef.current.rotation.set(0, 0, 0); // Reset rotation to face camera
+      groupRef.current.scale.set(0.02, 0.02, 0.02); // Keep the same scale
+      groupRef.current.position.set(0, -1.5, -2); // Position further back for better VR visibility
+      groupRef.current.rotation.set(0, Math.PI, 0); // Rotate 180 degrees to face camera
     }
   }, []);
 
