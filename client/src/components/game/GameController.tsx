@@ -15,7 +15,11 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
   const [coins, setCoins] = useState<{ id: number; position: [number, number, number] }[]>([]);
   const audioRef = useRef<HTMLAudioElement>();
   const analyzerRef = useRef<AudioAnalyzer>();
+  const lastSpawnTime = useRef(0);
   const { camera } = useThree();
+
+  const MAX_COINS = 5; // Maximum number of coins allowed at once
+  const SPAWN_COOLDOWN = 1000; // Minimum time between spawns in milliseconds
 
   useEffect(() => {
     console.log('Starting audio initialization...');
@@ -23,7 +27,6 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
 
     const initAudio = async () => {
       try {
-        // Create new audio element
         const audio = new Audio();
         audio.crossOrigin = "anonymous";
         audio.src = songUrl;
@@ -32,13 +35,11 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
         console.log('Created audio element with URL:', songUrl);
         onDebugUpdate('Loading audio file...');
 
-        // Create analyzer if it doesn't exist
         if (!analyzerRef.current) {
           console.log('Creating new AudioAnalyzer');
           analyzerRef.current = new AudioAnalyzer();
         }
 
-        // Set up audio element event listeners
         audio.addEventListener('loadstart', () => {
           console.log('Audio loading started');
           onDebugUpdate('Loading audio...');
@@ -81,7 +82,6 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
     initAudio();
 
     return () => {
-      console.log('Cleaning up audio resources');
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.src = '';
@@ -91,18 +91,30 @@ export default function GameController({ songUrl, onScore, onDebugUpdate }: Game
   }, [songUrl, onDebugUpdate]);
 
   useFrame(() => {
-    if (analyzerRef.current?.getBeatDetection()) {
+    const currentTime = Date.now();
+
+    // Only spawn if we're under the max limit and enough time has passed
+    if (analyzerRef.current?.getBeatDetection() && 
+        coins.length < MAX_COINS && 
+        currentTime - lastSpawnTime.current > SPAWN_COOLDOWN) {
       console.log('Beat detected - spawning coin!');
       const newCoin = {
         id: Date.now(),
         position: [
-          Math.random() * 10 - 5, // x: -5 to 5
-          Math.random() * 3 + 1,  // y: 1 to 4
-          -15 // z: start far back
+          Math.random() * 6 - 3, // x: -3 to 3 (reduced range)
+          Math.random() * 2 + 1,  // y: 1 to 3 (reduced range)
+          -10 // z: start closer
         ] as [number, number, number]
       };
       setCoins(prev => [...prev, newCoin]);
+      lastSpawnTime.current = currentTime;
     }
+
+    // Clean up coins that are too far away
+    setCoins(prev => prev.filter(coin => {
+      const mesh = groupRef.current?.getObjectById(coin.id);
+      return mesh ? mesh.position.z <= 5 : true;
+    }));
   });
 
   return (
