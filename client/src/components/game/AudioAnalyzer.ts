@@ -3,6 +3,9 @@ export class AudioAnalyzer {
   private analyser: AnalyserNode;
   private dataArray: Uint8Array;
   private source?: MediaElementAudioSourceNode;
+  private beatThreshold: number = 80; // Lower threshold for more frequent beats
+  private lastBeatTime: number = 0;
+  private beatCooldown: number = 500; // Minimum time between beats in ms
 
   constructor() {
     this.audioContext = new AudioContext();
@@ -13,9 +16,17 @@ export class AudioAnalyzer {
   }
 
   connect(audioElement: HTMLAudioElement) {
-    this.source = this.audioContext.createMediaElementSource(audioElement);
-    this.source.connect(this.analyser);
-    this.analyser.connect(this.audioContext.destination);
+    try {
+      if (this.source) {
+        this.source.disconnect();
+      }
+      this.source = this.audioContext.createMediaElementSource(audioElement);
+      this.source.connect(this.analyser);
+      this.analyser.connect(this.audioContext.destination);
+      console.log('Audio analyzer connected successfully');
+    } catch (error) {
+      console.error('Error connecting audio analyzer:', error);
+    }
   }
 
   getFrequencyData(): Uint8Array {
@@ -24,14 +35,31 @@ export class AudioAnalyzer {
   }
 
   getBeatDetection(): boolean {
+    const now = Date.now();
+    if (now - this.lastBeatTime < this.beatCooldown) {
+      return false;
+    }
+
     const data = this.getFrequencyData();
-    const sum = data.reduce((a, b) => a + b, 0);
-    const average = sum / data.length;
-    return average > 100; // Threshold for beat detection
+    // Focus on bass frequencies (first quarter of the frequency range)
+    const bassRange = Math.floor(data.length / 4);
+    let bassSum = 0;
+    for (let i = 0; i < bassRange; i++) {
+      bassSum += data[i];
+    }
+    const bassAverage = bassSum / bassRange;
+
+    if (bassAverage > this.beatThreshold) {
+      this.lastBeatTime = now;
+      return true;
+    }
+    return false;
   }
 
   resume() {
-    this.audioContext.resume();
+    if (this.audioContext.state === 'suspended') {
+      this.audioContext.resume().catch(console.error);
+    }
   }
 
   disconnect() {

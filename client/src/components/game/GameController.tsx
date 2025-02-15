@@ -52,6 +52,7 @@ export default function GameController({ songUrl, onScore }: GameControllerProps
 
   useFrame(() => {
     if (analyzerRef.current?.getBeatDetection()) {
+      console.log('Beat detected!'); // Debug logging
       const newCoin = {
         id: Date.now(),
         position: [
