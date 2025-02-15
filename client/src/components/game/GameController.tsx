@@ -15,7 +15,7 @@ export default function GameController({ songUrl, onScore }: GameControllerProps
   const [coins, setCoins] = useState<{ id: number; position: [number, number, number] }[]>([]);
   const audioRef = useRef<HTMLAudioElement>(null);
   const analyzerRef = useRef<AudioAnalyzer>();
-  const { isPresenting } = useXR();
+  const { session } = useXR();
 
   useEffect(() => {
     if (!analyzerRef.current) {
@@ -51,11 +51,11 @@ export default function GameController({ songUrl, onScore }: GameControllerProps
   };
 
   useEffect(() => {
-    if (isPresenting && audioRef.current) {
+    if (session && audioRef.current) {
       audioRef.current.play();
       analyzerRef.current?.resume();
     }
-  }, [isPresenting]);
+  }, [session]);
 
   return (
     <group ref={groupRef}>
