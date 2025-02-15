@@ -8,27 +8,18 @@ export default function DancingCharacter() {
   const groupRef = useRef<Group>(null);
   const mixerRef = useRef<AnimationMixer | null>(null);
 
-  // Add timestamp to force reload of the model
-  const modelUrl = `/attached_assets/Wave Hip Hop Dance.fbx?v=${Date.now()}`;
-  const textureUrl = '/attached_assets/on1 7173_a.png';
-
   // Load the FBX model and its animations
-  const fbx = useLoader(FBXLoader, modelUrl, (loader) => {
-    console.log('Loading FBX model...', modelUrl);
-  }, (error) => {
-    console.error('Error loading FBX:', error);
-  });
-  const texture = useLoader(TextureLoader, textureUrl);
+  const fbx = useLoader(FBXLoader, '/attached_assets/Wave Hip Hop Dance.fbx');
+  const texture = useLoader(TextureLoader, '/attached_assets/on1 7173_a.png');
 
   useEffect(() => {
     if (fbx && fbx.animations.length) {
-      console.log('FBX loaded successfully with', fbx.animations.length, 'animations');
       // Create a new animation mixer
       const mixer = new AnimationMixer(fbx);
       mixerRef.current = mixer;
 
       // Apply texture to all meshes in the model
-      fbx.traverse((child: any) => {
+      fbx.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           if (Array.isArray(child.material)) {
             child.material.forEach(mat => {
@@ -48,28 +39,8 @@ export default function DancingCharacter() {
       action.play();
 
       return () => {
-        // Clean up resources
         mixer.stopAllAction();
-        mixer.uncacheRoot(fbx);
-        fbx.traverse((child: any) => {
-          if (child instanceof THREE.Mesh) {
-            if (child.geometry) {
-              child.geometry.dispose();
-            }
-            if (Array.isArray(child.material)) {
-              child.material.forEach(mat => {
-                if (mat.map) mat.map.dispose();
-                mat.dispose();
-              });
-            } else if (child.material) {
-              if (child.material.map) child.material.map.dispose();
-              child.material.dispose();
-            }
-          }
-        });
       };
-    } else {
-      console.error('FBX model loaded but has no animations or is invalid');
     }
   }, [fbx, texture]);
 
