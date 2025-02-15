@@ -47,7 +47,7 @@ export default function Environment() {
       <gridHelper args={[100, 100]} />
 
       {/* Ground plane with video texture */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -5, 0]}>
         <planeGeometry args={[100, 100]} />
         <meshStandardMaterial 
           map={textureRef.current}
